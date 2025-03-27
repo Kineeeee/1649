@@ -1,0 +1,257 @@
+import dataStructures.*;
+import models.*;
+
+import java.util.Scanner;
+
+public class Main {
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final MyInventory inventory = new MyInventory();
+    private static final MyQueue<Order> orderQueue = new MyQueue<>();
+    private static int orderNumber = 1;
+
+    private static final SearchingAlgorithms searchAlgo = new SearchingAlgorithms();
+    private static final SortingAlgorithms sortingAlgo = new SortingAlgorithms();
+
+    public static void main(String[] args) {
+        // Add initial books to the inventory
+        addInitialBooksToStock();
+
+        while (true) {
+            System.out.println("\n=== Online Bookstore System ===");
+            System.out.println("1. Đặt hàng mới");
+            System.out.println("2. Xử lý đơn hàng");
+            System.out.println("3. Tìm kiếm đơn hàng");
+            System.out.println("4. Tìm kiếm đơn hàng theo tên khách hàng");
+            System.out.println("5. Thêm sách vào kho");
+            System.out.println("6. Hiển thị kho");
+            System.out.println("7. Cập nhật số lượng sách trong kho");
+            System.out.println("8. Hiển thị đơn hàng theo tên khách hàng");
+            System.out.println("9. Thoát");
+            System.out.print("Chọn một tùy chọn: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine();  // consume newline
+
+            switch (choice) {
+                case 1 -> createNewOrder();
+                case 2 -> processOrder();
+                case 3 -> searchOrder();
+                case 4 -> searchOrderByName();
+                case 5 -> addBookToStock();
+                case 6 -> inventory.displayStock();
+                case 7 -> updateBookStock();
+                case 8 -> displaySortedOrdersByCustomerName();
+                case 9 -> {
+                    System.out.println("Thoát chương trình...");
+                    scanner.close();
+                    return;
+                }
+                default -> System.out.println("Lựa chọn không hợp lệ, vui lòng chọn lại.");
+            }
+        }
+    }
+
+    // Method to add initial books to the stock
+    private static void addInitialBooksToStock() {
+        inventory.addBook("The Great Gatsby", "F. Scott Fitzgerald", 10.99, 20);
+        inventory.addBook("1984", "George Orwell", 12.99, 15);
+        inventory.addBook("To Kill a Mockingbird", "Harper Lee", 14.99, 30);
+        System.out.println("3 cuốn sách đã được thêm vào kho.");
+    }
+
+    // Method to create a new order
+    private static void createNewOrder() {
+        System.out.print("Nhập tên khách hàng: ");
+        String customerName = scanner.nextLine();
+
+        // Display the list of available books
+        System.out.println("Danh sách sách có sẵn:");
+        displayAvailableBooks();
+
+        // Ask user to select a book by number
+        System.out.print("Chọn sách (nhập số thứ tự sách): ");
+        int bookChoice = scanner.nextInt();
+        scanner.nextLine();  // consume newline
+
+        // Get book by index from the list
+        Book selectedBook = inventory.getBookByIndex(bookChoice - 1);
+
+        if (selectedBook == null) {
+            System.out.println("Lựa chọn không hợp lệ. Vui lòng thử lại.");
+            return;
+        }
+
+        // Ask for quantity
+        System.out.print("Nhập số lượng: ");
+        int quantity = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        // Check if book is available in inventory
+        if (inventory.isBookAvailable(selectedBook.getTitle(), quantity)) {
+            Order order = new Order(orderNumber++, customerName, selectedBook.getTitle(), quantity);
+            orderQueue.enqueue(order); // Add the order to the queue
+            System.out.println("Đặt hàng thành công! Đơn hàng sẽ được xử lý.");
+        } else {
+            System.out.println("Sách không có đủ số lượng trong kho.");
+        }
+    }
+
+    // Method to display available books and their index
+    private static void displayAvailableBooks() {
+        inventory.displayStock();
+        System.out.println("Chọn số thứ tự sách để đặt hàng.");
+    }
+
+
+
+
+
+    // Method to process an order (dequeue from the queue)
+    private static void processOrder() {
+        if (orderQueue.isEmpty()) {
+            System.out.println("Không có đơn hàng nào để xử lý.");
+            return;
+        }
+
+        Order order = orderQueue.dequeue();
+        System.out.println("Đang xử lý đơn hàng: " + order);
+        inventory.reduceStock(order.getBookTitle(), order.getQuantity());
+        System.out.println("Đơn hàng đã được xử lý.");
+    }
+
+    // Method to search for an order by its number using Linear Search
+    private static void searchOrder() {
+        System.out.print("Nhập số đơn hàng cần tìm: ");
+        int orderNum = scanner.nextInt();
+        scanner.nextLine();
+
+        // Perform linear search
+//        Order foundOrder = linearSearch(orderNum);
+        Order foundOrder = searchAlgo.findOrderByNumber(orderQueue.toArray(), orderNum);
+        if (foundOrder != null) {
+            System.out.println("Đơn hàng tìm thấy: " + foundOrder);
+        } else {
+            System.out.println("Không tìm thấy đơn hàng với số đã nhập.");
+        }
+    }
+
+    // Linear Search for Order by order number
+//    private static Order linearSearch(int orderNum) {
+//        MyQueue<Order> tempQueue = new MyQueue<>();
+//        Order foundOrder = null;
+//
+//        while (!orderQueue.isEmpty()) {
+//            Order order = orderQueue.dequeue();
+//            if (order.getOrderNumber() == orderNum) {
+//                foundOrder = order;
+//            }
+//            tempQueue.enqueue(order); // Save the orders back into the temporary queue
+//        }
+//
+//        // Refill the main queue to preserve the state
+//        while (!tempQueue.isEmpty()) {
+//            orderQueue.enqueue(tempQueue.dequeue());
+//        }
+//
+//        return foundOrder;
+//    }
+
+    // Method to search for orders by customer name
+    private static void searchOrderByName() {
+        System.out.print("Nhập tên khách hàng cần tìm: ");
+        String customerName = scanner.nextLine();
+
+        Order[] foundOrdersByName = searchAlgo.findOrdersByCustomerName(orderQueue.toArray(), customerName);
+        if (foundOrdersByName != null) {
+            System.out.println("Đơn hàng tìm thấy:");
+            for (Order order : foundOrdersByName) {
+                System.out.println(order);
+            }
+        } else {
+            System.out.println("Không tìm thấy đơn hàng với tên khách hàng đã nhập.");
+        }
+    }
+
+
+    // Method to add a book to the stock
+    private static void addBookToStock() {
+        // Display existing books and ask the user for a new book
+        System.out.println("Danh sách sách có sẵn:");
+        inventory.displayStock();
+
+        System.out.print("Nhập tên sách: ");
+        String title = scanner.nextLine();
+
+        System.out.print("Nhập tác giả: ");
+        String author = scanner.nextLine();
+
+        System.out.print("Nhập giá sách: ");
+        double price = scanner.nextDouble();
+
+        System.out.print("Nhập số lượng sách: ");
+        int quantity = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        inventory.addBook(title, author, price, quantity);
+        System.out.println("Sách đã được thêm vào kho.");
+    }
+
+    // Method to update book stock in the inventory
+    private static void updateBookStock() {
+        // Display the list of available books
+        System.out.println("Danh sách sách có sẵn:");
+        inventory.displayStock();
+
+
+        // Ask user to select a book by number
+        System.out.print("Chọn sách (nhập số thứ tự sách): ");
+        int bookChoice = scanner.nextInt();
+        scanner.nextLine();  // consume newline
+
+        // Get book by index from the list
+        Book selectedBook = inventory.getBookByIndex(bookChoice - 1);
+
+        if (selectedBook == null) {
+            System.out.println("Lựa chọn không hợp lệ. Vui lòng thử lại.");
+            return;
+        }
+
+        System.out.print("Nhập số lượng mới: ");
+        int quantity = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        inventory.updateStock(selectedBook.getTitle(), quantity);
+
+        System.out.println("Số lượng sách đã được cập nhật.");
+        System.out.println("Số lượng sách mới là: ");
+
+        inventory.displayStock();
+    }
+
+    // Method to display sorted orders by customer name using Quick Sort
+    private static void displaySortedOrdersByCustomerName() {
+        MyQueue<Order> tempQueue = new MyQueue<>();
+        Order[] ordersArray = new Order[orderQueue.size()];
+        int index = 0;
+
+        // Dequeue orders to fill the array
+        while (!orderQueue.isEmpty()) {
+            ordersArray[index++] = orderQueue.dequeue();
+        }
+
+        // Apply Quick Sort on the array based on customer name
+        sortingAlgo.quickSort(ordersArray, 0, ordersArray.length - 1);
+
+        // Print sorted orders
+        System.out.println("Danh sách đơn hàng đã được sắp xếp theo tên khách hàng:");
+        for (Order order : ordersArray) {
+            System.out.println(order);
+            tempQueue.enqueue(order); // Refill the queue to preserve the state
+        }
+
+        // Refill the main queue
+        while (!tempQueue.isEmpty()) {
+            orderQueue.enqueue(tempQueue.dequeue());
+        }
+    }
+}
