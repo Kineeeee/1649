@@ -10,6 +10,8 @@ public class MyQueue<T> implements QueueADT<T> {
     private int size;
     private static final int INITIAL_CAPACITY = 10;
 
+
+    // Constructor
     public MyQueue() {
         queue = new Object[INITIAL_CAPACITY];
         front = 0;

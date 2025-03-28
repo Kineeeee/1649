@@ -54,6 +54,10 @@ public class Main {
         inventory.addBook("The Great Gatsby", "F. Scott Fitzgerald", 10.99, 20);
         inventory.addBook("1984", "George Orwell", 12.99, 15);
         inventory.addBook("To Kill a Mockingbird", "Harper Lee", 14.99, 30);
+        inventory.addBook("The Catcher in the Rye", "J.D. Salinger", 9.99, 25);
+        inventory.addBook("Lord of the Flies", "William Golding", 11.99, 18);
+        inventory.addBook("Pride and Prejudice", "Jane Austen", 13.99, 22);
+        inventory.addBook("Animal Farm", "George Orwell", 10.99, 17);
         System.out.println("3 books have been added to the inventory.");
     }
 
