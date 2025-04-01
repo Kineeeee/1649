@@ -1,6 +1,5 @@
 package ADT;
 
-import models.Book;
 
 public interface InventoryADT {
     void addBook(String title, String author, double price, int quantity);

@@ -8,6 +8,7 @@ public class Main {
     private static final MyQueue<Order> orderQueue = new MyQueue<>();
     private static int orderNumber = 1;
 
+    private static final MyArrayList<Order> processedOrders = new MyArrayList<>();
     private static final MyStack<Order> failedOrdersStack = new MyStack<>();
     private static final SearchingAlgorithms searchAlgo = new SearchingAlgorithms();
     private static final SortingAlgorithms sortingAlgo = new SortingAlgorithms();
@@ -26,7 +27,9 @@ public class Main {
             System.out.println("7. Update book stock");
             System.out.println("8. Display sorted orders by customer name");
             System.out.println("9. Retry failed orders");
-            System.out.println("10. Exit");
+            System.out.println("10. View processed order history");
+
+            System.out.println("11. Exit");
 
             int choice = safeInputInt("Choose an option: ");
 
@@ -40,7 +43,8 @@ public class Main {
                 case 7 -> updateBookStock();
                 case 8 -> displaySortedOrdersByCustomerName();
                 case 9 -> retryFailedOrders();
-                case 10 -> {
+                case 10 -> viewProcessedOrderHistory();
+                case 11 -> {
                     System.out.println("Exiting the program...");
                     scanner.close();
                     return;
@@ -58,7 +62,7 @@ public class Main {
         inventory.addBook("Lord of the Flies", "William Golding", 11.99, 18);
         inventory.addBook("Pride and Prejudice", "Jane Austen", 13.99, 22);
         inventory.addBook("Animal Farm", "George Orwell", 10.99, 17);
-        System.out.println("3 books have been added to the inventory.");
+        System.out.println("7 books have been added to the inventory.");
     }
 
     private static void createNewOrder() {
@@ -97,6 +101,7 @@ public class Main {
         boolean success = inventory.reduceStock(order.getBookTitle(), order.getQuantity());
         if (success) {
             System.out.println("Order processed successfully.");
+            processedOrders.add(order);
         } else {
             System.out.println("Failed to process order due to stock error (book not found or insufficient quantity).");
             failedOrdersStack.push(order);
@@ -220,6 +225,19 @@ public class Main {
             failedOrdersStack.push(tempStack.pop());
         }
     }
+
+    private static void viewProcessedOrderHistory() {
+        if (processedOrders.size() == 0) {
+            System.out.println("No processed orders yet.");
+            return;
+        }
+
+        System.out.println("=== Processed Order History ===");
+        for (int i = 0; i < processedOrders.size(); i++) {
+            System.out.println((i + 1) + ". " + processedOrders.get(i));
+        }
+    }
+
 
 
     // ==============================

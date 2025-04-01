@@ -3,44 +3,68 @@ package dataStructures;
 import ADT.StackADT;
 
 public class MyStack<T> implements StackADT<T> {
-    private Object[] stack;
-    private int top;
+    private Node top;
+    private int size;
 
+    // Constructor
     public MyStack() {
-        stack = new Object[100];
-        top = -1;
+        top = null;
+        size = 0;
     }
 
     @Override
     public void push(T item) {
-        if (top == stack.length - 1) {
-            System.out.println("Stack is full.");
-            return;
-        }
-        stack[++top] = item;
+        Node newNode = new Node(item);
+        newNode.next = top;
+        top = newNode;
+        size++;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public T pop() {
         if (isEmpty()) return null;
-        return (T) stack[top--];
+        T item = top.element;
+        top = top.next;
+        size--;
+        return item;
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public T peek() {
         if (isEmpty()) return null;
-        return (T) stack[top];
+        return top.element;
     }
 
     @Override
     public boolean isEmpty() {
-        return top == -1;
+        return size == 0;
     }
 
     @Override
     public int size() {
-        return top + 1;
+        return size;
+    }
+
+    private class Node {
+        T element;
+        Node next;
+
+        public Node(T element) {
+            this.element = element;
+            this.next = null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        Node current = top;
+        while (current != null) {
+            sb.append(current.element);
+            if (current.next != null) sb.append(", ");
+            current = current.next;
+        }
+        sb.append("]");
+        return sb.toString();
     }
 }

@@ -4,28 +4,25 @@ import ADT.QueueADT;
 import models.Order;
 
 public class MyQueue<T> implements QueueADT<T> {
-    private Object[] queue;
-    private int front;
-    private int rear;
+    private Node head;
+    private Node tail;
     private int size;
-    private static final int INITIAL_CAPACITY = 10;
 
-
-    // Constructor
     public MyQueue() {
-        queue = new Object[INITIAL_CAPACITY];
-        front = 0;
-        rear = 0;
-        size = 0;
+        this.head = null;
+        this.tail = null;
+        this.size = 0;
     }
 
     @Override
     public void enqueue(T item) {
-        if (size == queue.length) {
-            resize();
+        Node newNode = new Node(item);
+        if (isEmpty()) {
+            head = tail = newNode;
+        } else {
+            tail.next = newNode;
+            tail = newNode;
         }
-        queue[rear] = item;
-        rear = (rear + 1) % queue.length;
         size++;
     }
 
@@ -34,11 +31,20 @@ public class MyQueue<T> implements QueueADT<T> {
         if (isEmpty()) {
             throw new IllegalStateException("Queue is empty");
         }
-        T item = (T) queue[front];
-        queue[front] = null;
-        front = (front + 1) % queue.length;
+
+        T item = head.element;
+        head = head.next;
+        if (head == null) tail = null;
         size--;
         return item;
+    }
+
+    @Override
+    public T peek() {
+        if (isEmpty()) {
+            throw new IllegalStateException("Queue is empty");
+        }
+        return head.element;
     }
 
     @Override
@@ -53,40 +59,42 @@ public class MyQueue<T> implements QueueADT<T> {
 
     @Override
     public void clear() {
-        for (int i = 0; i < size; i++) {
-            queue[(front + i) % queue.length] = null;
-        }
-        front = 0;
-        rear = 0;
+        head = tail = null;
         size = 0;
-    }
-
-    @Override
-    public T peek() {
-        if (isEmpty()) {
-            throw new IllegalStateException("Queue is empty");
-        }
-        return (T) queue[front];
-    }
-
-    private void resize() {
-        int newCapacity = queue.length * 2;
-        Object[] newQueue = new Object[newCapacity];
-        for (int i = 0; i < size; i++) {
-            newQueue[i] = queue[(front + i) % queue.length];
-        }
-        queue = newQueue;
-        front = 0;
-        rear = size;
     }
 
     @Override
     public Order[] toArray() {
         Order[] result = new Order[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = (Order) queue[(front + i) % queue.length]; // ép từng phần tử
+        Node current = head;
+        int index = 0;
+        while (current != null) {
+            result[index++] = (Order) current.element; // ép kiểu như trong MyQueue
+            current = current.next;
         }
         return result;
     }
 
+    private class Node {
+        private T element;
+        private Node next;
+
+        public Node(T element) {
+            this.element = element;
+            this.next = null;
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        Node current = head;
+        while (current != null) {
+            sb.append(current.element);
+            if (current.next != null) sb.append(", ");
+            current = current.next;
+        }
+        sb.append("]");
+        return sb.toString();
+    }
 }
