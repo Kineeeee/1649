@@ -1,5 +1,6 @@
 import dataStructures.*;
 import models.*;
+import Test.PerformanceTester;
 import java.util.Scanner;
 
 public class Main {
@@ -14,8 +15,9 @@ public class Main {
     private static final SortingAlgorithms sortingAlgo = new SortingAlgorithms();
 
     public static void main(String[] args) {
-        addInitialBooksToStock();
+        PerformanceTester.runAll();
 
+        addInitialBooksToStock();
         while (true) {
             System.out.println("\n=== Online Bookstore System ===");
             System.out.println("1. Create new order");
@@ -237,6 +239,7 @@ public class Main {
             System.out.println((i + 1) + ". " + processedOrders.get(i));
         }
     }
+
 
 
 
