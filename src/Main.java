@@ -174,12 +174,14 @@ public class Main {
     }
 
     private static void displaySortedOrdersByCustomerName() {
-        MyQueue<Order> tempQueue = new MyQueue<>();
+        MyQueue<Order> tempOrderQueue = new MyQueue<>();
         Order[] ordersArray = new Order[orderQueue.size()];
         int index = 0;
 
         while (!orderQueue.isEmpty()) {
-            ordersArray[index++] = orderQueue.dequeue();
+            Order order = orderQueue.dequeue();
+            ordersArray[index++] = order;
+            tempOrderQueue.enqueue(order);
         }
 
         sortingAlgo.quickSort(ordersArray, 0, ordersArray.length - 1);
@@ -192,13 +194,14 @@ public class Main {
         System.out.println("Orders sorted by customer name:");
         for (Order order : ordersArray) {
             System.out.println(order);
-            tempQueue.enqueue(order);
         }
 
-        while (!tempQueue.isEmpty()) {
-            orderQueue.enqueue(tempQueue.dequeue());
+        while (!tempOrderQueue.isEmpty()) {
+            orderQueue.enqueue(tempOrderQueue.dequeue());
         }
     }
+
+
 
     private static void retryFailedOrders() {
         if (failedOrdersStack.isEmpty()) {
