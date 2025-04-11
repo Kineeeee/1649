@@ -255,7 +255,12 @@ public class Main {
             System.out.print(message);
             String input = scanner.nextLine();
             try {
-                return Integer.parseInt(input);
+                int value = Integer.parseInt(input);
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println("Please enter a positive integer.");
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid integer.");
             }
@@ -267,7 +272,12 @@ public class Main {
             System.out.print(message);
             String input = scanner.nextLine();
             try {
-                return Double.parseDouble(input);
+                double value = Double.parseDouble(input);
+                if (value > 0) {
+                    return value;
+                } else {
+                    System.out.println("Please enter a positive number.");
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Please enter a valid number.");
             }
