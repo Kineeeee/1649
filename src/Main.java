@@ -69,27 +69,35 @@ public class Main {
 
     private static void createNewOrder() {
         String customerName = safeInputString("Enter customer name: ");
-        System.out.println("Available books:");
-        inventory.displayStock();
+        Order order = new Order(orderNumber++, customerName);
 
-        int bookChoice = safeInputInt("Choose a book (enter the book number): ");
-        Book selectedBook = inventory.getBookByIndex(bookChoice - 1);
+        while (true) {
+            inventory.displayStock();
+            int bookChoice = safeInputInt("Choose a book (0 to finish): ");
+            if (bookChoice == 0) break;
 
-        if (selectedBook == null) {
-            System.out.println("Invalid selection. Please try again.");
-            return;
+            Book selectedBook = inventory.getBookByIndex(bookChoice - 1);
+            if (selectedBook == null) {
+                System.out.println("Invalid book.");
+                continue;
+            }
+
+            int quantity = safeInputInt("Enter quantity: ");
+            if (inventory.isBookAvailable(selectedBook.getTitle(), quantity)) {
+                order.addBook(selectedBook, quantity);
+            } else {
+                System.out.println("Not enough stock.");
+            }
         }
 
-        int quantity = safeInputInt("Enter quantity: ");
-
-        if (inventory.isBookAvailable(selectedBook.getTitle(), quantity)) {
-            Order order = new Order(orderNumber++, customerName, selectedBook.getTitle(), quantity);
+        if (!order.getBooks().isEmpty()) {
             orderQueue.enqueue(order);
-            System.out.println("Order placed successfully. It will be processed soon.");
+            System.out.println("Order placed. Order number is #" + order.getOrderNumber());
         } else {
-            System.out.println("Not enough stock for the selected book.");
+            System.out.println("Order was empty. Nothing placed.");
         }
     }
+
 
     private static void processOrder() {
         if (orderQueue.isEmpty()) {
@@ -98,27 +106,33 @@ public class Main {
         }
 
         Order order = orderQueue.dequeue();
-        System.out.println("Processing order: " + order);
 
-        boolean success = inventory.reduceStock(order.getBookTitle(), order.getQuantity());
-        if (success) {
-            System.out.println("Order processed successfully.");
-            processedOrders.add(order);
-        } else {
-            System.out.println("Failed to process order due to stock error (book not found or insufficient quantity).");
-            failedOrdersStack.push(order);
-        }
-
-        System.out.println("\nUnprocessed orders:");
-        Order[] remainingOrders = orderQueue.toArray();
-        if (remainingOrders.length == 0) {
-            System.out.println("No remaining orders in the queue.");
-        } else {
-            for (Order o : remainingOrders) {
-                System.out.println(o);
+        boolean allAvailable = true;
+        for (int i = 0; i < order.getBooks().size(); i++) {
+            Book book = order.getBooks().get(i);
+            int quantity = order.getQuantities().get(i);
+            if (!inventory.isBookAvailable(book.getTitle(), quantity)) {
+                allAvailable = false;
+                break;
             }
         }
+
+        if (allAvailable) {
+            for (int i = 0; i < order.getBooks().size(); i++) {
+                Book book = order.getBooks().get(i);
+                int quantity = order.getQuantities().get(i);
+                inventory.reduceStock(book.getTitle(), quantity);
+            }
+
+            order.sortBooksByTitle(); // dùng insertion sort bên trong Order
+            processedOrders.add(order);
+            System.out.println("Order processed successfully:\n" + order);
+        } else {
+            failedOrdersStack.push(order);
+            System.out.println("Order failed due to unavailable books.");
+        }
     }
+
 
     private static void searchOrder() {
         int orderNum = safeInputInt("Enter order number to search: ");
@@ -216,12 +230,15 @@ public class Main {
             Order order = failedOrdersStack.pop();
             System.out.println("Retrying order: " + order);
 
-            boolean success = inventory.reduceStock(order.getBookTitle(), order.getQuantity());
-            if (success) {
-                System.out.println("Order processed successfully on retry.");
-            } else {
-                System.out.println("Still failed. Keeping in retry stack.");
-                tempStack.push(order);
+            boolean success = true;
+            for (int i = 0; i < order.getBooks().size(); i++) {
+                Book book = order.getBooks().get(i);
+                int quantity = order.getQuantities().get(i);
+
+                if (!inventory.reduceStock(book.getTitle(), quantity)) {
+                    success = false;
+                    break;
+                }
             }
         }
 
@@ -256,7 +273,7 @@ public class Main {
             String input = scanner.nextLine();
             try {
                 int value = Integer.parseInt(input);
-                if (value > 0) {
+                if (value >= 0) {
                     return value;
                 } else {
                     System.out.println("Please enter a positive integer.");
@@ -273,7 +290,7 @@ public class Main {
             String input = scanner.nextLine();
             try {
                 double value = Double.parseDouble(input);
-                if (value > 0) {
+                if (value >= 0) {
                     return value;
                 } else {
                     System.out.println("Please enter a positive number.");

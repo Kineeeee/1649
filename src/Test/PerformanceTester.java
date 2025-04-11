@@ -1,5 +1,6 @@
 package Test;
 
+import models.Book;
 import models.Order;
 import dataStructures.MyQueue;
 import dataStructures.MyStack;
@@ -15,7 +16,9 @@ public class PerformanceTester {
 
         long startEnqueue = System.nanoTime();
         for (int i = 0; i < count; i++) {
-            queue.enqueue(new Order(i + 1, "Customer_" + i, "Book", 1));
+            Order order = new Order(i + 1, "Customer_" + i);
+            order.addBook(new Book("Book", "Author", 10.0, 100), 1);
+            queue.enqueue(order);
         }
         long endEnqueue = System.nanoTime();
 
@@ -36,7 +39,9 @@ public class PerformanceTester {
 
         long startPush = System.nanoTime();
         for (int i = 0; i < count; i++) {
-            stack.push(new Order(i + 1, "Customer_" + i, "Book", 1));
+            Order order = new Order(i + 1, "Customer_" + i);
+            order.addBook(new Book("Book", "Author", 10.0, 100), 1);
+            stack.push(order);
         }
         long endPush = System.nanoTime();
 
@@ -71,7 +76,9 @@ public class PerformanceTester {
         int count = 1000;
         Order[] orders = new Order[count];
         for (int i = 0; i < count; i++) {
-            orders[i] = new Order(i + 1, "Customer_" + i, "Book", 1);
+            Order order = new Order(i + 1, "Customer_" + i);
+            order.addBook(new Book("Book", "Author", 10.0, 100), 1);
+            orders[i] = order;
         }
         SearchingAlgorithms search = new SearchingAlgorithms();
 
@@ -98,7 +105,9 @@ public class PerformanceTester {
         int count = 1000;
         Order[] orders = new Order[count];
         for (int i = 0; i < count; i++) {
-            orders[i] = new Order(i + 1, "Customer_" + (count - i), "Book", 1);
+            Order order = new Order(i + 1, "Customer_" + (count - i));
+            order.addBook(new Book("Book", "Author", 10.0, 100), 1);
+            orders[i] = order;
         }
 
         SortingAlgorithms sorter = new SortingAlgorithms();

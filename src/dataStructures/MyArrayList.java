@@ -75,4 +75,30 @@ public class MyArrayList<T> implements ArrayListADT<T> {
         head = null;
         size = 0;
     }
+
+    @Override
+    public void add(int index, T item) {
+        if (index < 0 || index > size) throw new IndexOutOfBoundsException();
+
+        Node newNode = new Node(item);
+        if (index == 0) {
+            newNode.next = head;
+            head = newNode;
+        } else {
+            Node current = head;
+            for (int i = 0; i < index - 1; i++) {
+                current = current.next;
+            }
+            newNode.next = current.next;
+            current.next = newNode;
+        }
+        size++;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return size == 0;
+    }
+
+
 }

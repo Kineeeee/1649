@@ -7,4 +7,6 @@ public interface ArrayListADT<T> {
     boolean contains(T item);
     int size();
     void clear();
+    void add(int index, T item);
+    boolean isEmpty();
 }
